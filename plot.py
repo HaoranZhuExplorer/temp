@@ -131,7 +131,11 @@ def get_guetzli_df(directory, write_files=False, effective_bytes=True, force_cal
                         image_bytes = os.path.getsize(directory+'/'+filename+"_"+str(q)+'_compressed.jpeg')
                     image = imageio.imread(directory+'/'+filename).astype(np.float) / (2**8 - 1)
                     image_compressed = imageio.imread(directory+'/'+filename+"_"+str(q)+'_compressed.jpeg').astype(np.float) / (2**8 - 1)
-                    #os.remove(directory+'/'+filename+"_"+str(q)+'_compressed.jpeg')
+                    image_compressed_path = directory + '/' + filename + "_" + str(q) + '_compressed.jpeg'
+                    image_path = directory + '/' + filename
+                    perceptual_similarity = compute_perceptual_similarity(image_path, image_compressed_path)
+
+                    os.remove(directory+'/'+filename+"_"+str(q)+'_compressed.jpeg')
                     msssim_value = msssim(image, image_compressed, MAX=1).real
 
                     df = df.append({'image_id': image_id,
@@ -142,6 +146,7 @@ def get_guetzli_df(directory, write_files=False, effective_bytes=True, force_cal
                                     'psnr': compare_psnr(image, image_compressed, data_range=1),
                                     'msssim': msssim_value,
                                     'msssim_db': -10 * np.log10(1 - msssim_value),
+                                    'perceptual similarity': perceptual_similarity,
                                     'bytes': image_bytes,
                                     'bpp': 8 * image_bytes / image.shape[0] / image.shape[1]
                                     }, ignore_index=True)
