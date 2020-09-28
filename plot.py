@@ -154,8 +154,7 @@ def get_guetzli_df(directory, write_files=False, effective_bytes=True, force_cal
 
                     pbar.set_postfix(image_id=image_id, quality=q)
                     pbar.update(1)
-                    break
-                break
+
         df.to_csv(os.path.join(directory, 'guetzli.csv'), index=False)
 
 
