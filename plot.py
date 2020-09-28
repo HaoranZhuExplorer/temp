@@ -120,7 +120,7 @@ def get_guetzli_df(directory, write_files=False, effective_bytes=True, force_cal
                 for qi, q in enumerate(quality_levels):
                     print(q)
                     # Compress images and get effective bytes (only image data - no headers)
-                    os.system('guetzli --quality '+str(q)+' '+directory+'/'+filename+' '+directory+'/'+filename+"_"+str(q)+'_compressed.jpeg')
+                    os.system('/home/Haoran/guetzli/bin/Release/./guetzli --quality '+str(q)+' '+directory+'/'+filename+' '+directory+'/'+filename+"_"+str(q)+'_compressed.jpeg')
                     if effective_bytes:
                         with open(directory+'/'+filename+"_"+str(q)+'_compressed.jpeg', 'rb') as fh:
                             buf = io.BytesIO(fh.read())
