@@ -18,6 +18,7 @@ import io
 from jpeg_helpers import JPEGMarkerStats
 #os.system('export DYLD_LIBRARY_PATH="/Users/Haoran/Documents/workspace/file/ImageMagick-7.0.10/lib/" && magick convert -quality 50 -define jpeg:q-table=/Users/Haoran/Desktop/quantization-table.xml /Users/Haoran/Downloads/raw512/md0d3ca2e738.png /Users/Haoran/Downloads/raw512/image.jpeg')
 
+from lpips_2imgs import compute_perceptual_similarity
 '''
 os.chdir("/Users/Haoran/Downloads/raw512")
 
@@ -120,7 +121,7 @@ def get_guetzli_df(directory, write_files=False, effective_bytes=True, force_cal
                 for qi, q in enumerate(quality_levels):
                     print(q)
                     # Compress images and get effective bytes (only image data - no headers)
-                    os.system('/home/Haoran/guetzli/bin/Release/./guetzli --quality '+str(q)+' '+directory+'/'+filename+' '+directory+'/'+filename+"_"+str(q)+'_compressed.jpeg')
+                    os.system('/home/Haoran/guetzli/bin/Release/./guetzli --quality '+str(q)+' '+directory+'/'+filename+' '+directory+'/'+filename+"_"+str(q)+'_compressed.jpg')
                     if effective_bytes:
                         with open(directory+'/'+filename+"_"+str(q)+'_compressed.jpeg', 'rb') as fh:
                             buf = io.BytesIO(fh.read())
@@ -128,14 +129,14 @@ def get_guetzli_df(directory, write_files=False, effective_bytes=True, force_cal
                         image_bytes = JPEGMarkerStats(buf.getvalue()).get_effective_bytes()
 
                     else:
-                        image_bytes = os.path.getsize(directory+'/'+filename+"_"+str(q)+'_compressed.jpeg')
+                        image_bytes = os.path.getsize(directory+'/'+filename+"_"+str(q)+'_compressed.jpg')
                     image = imageio.imread(directory+'/'+filename).astype(np.float) / (2**8 - 1)
-                    image_compressed = imageio.imread(directory+'/'+filename+"_"+str(q)+'_compressed.jpeg').astype(np.float) / (2**8 - 1)
-                    image_compressed_path = directory + '/' + filename + "_" + str(q) + '_compressed.jpeg'
+                    image_compressed = imageio.imread(directory+'/'+filename+"_"+str(q)+'_compressed.jpg').astype(np.float) / (2**8 - 1)
+                    image_compressed_path = directory + '/' + filename + "_" + str(q) + '_compressed.jpg'
                     image_path = directory + '/' + filename
                     perceptual_similarity = compute_perceptual_similarity(image_path, image_compressed_path)
 
-                    os.remove(directory+'/'+filename+"_"+str(q)+'_compressed.jpeg')
+                    os.remove(directory+'/'+filename+"_"+str(q)+'_compressed.jpg')
                     msssim_value = msssim(image, image_compressed, MAX=1).real
 
                     df = df.append({'image_id': image_id,
@@ -153,6 +154,7 @@ def get_guetzli_df(directory, write_files=False, effective_bytes=True, force_cal
 
                     pbar.set_postfix(image_id=image_id, quality=q)
                     pbar.update(1)
+                    break
                 break
         df.to_csv(os.path.join(directory, 'guetzli.csv'), index=False)
 
